@@ -59,6 +59,7 @@ mysqli_close($con);
             <div class="logo_dashboard">
                 <img src="./assets/img/bear_logo.png" alt="" class="logo-img_dashboard">
                 <h3 class="logo-text">GOURP</h3>
+                <h1>thanhuyen đã đến đây</h1>
             </div>
         </a>
 

@@ -1,57 +1,61 @@
 <?php
-    //Kết nối đến DB
-    $con=mysqli_connect('localhost','root','','baitaplon')
-    or die('Lỗi kết nối');
-    //Tạo và thực hiện truy vấn
-    $sql="SELECT*FROM phieunhap";
-    $data=mysqli_query($con,$sql);
-    //Xử lí button tìm kiếm dây là note moi tạo
-    if(isset($_POST['btntimkiem']))
-    {
-        $nn=$_POST['dtNgaynhap'];
-        $sp=$_POST['txtSophieu'];
-        $sqltk="SELECT * FROM phieunhap WHERE Sophieu like'%$sp%' and Ngaynhap like '%$nn%'";
-        $data=mysqli_query($con,$sqltk);
-    }
-    
-    $sp=''; $nn=''; $nv='';
-if(isset($_POST['btnPhieunhap']))
+$con=mysqli_connect('localhost','root','','baitaplon')
+or die('Loi ket noi');
+//tao va thuc hien truy van lay dl bang loai sach duwa vao combox
+$sql="SELECT*FROM phieuxuat";
+$data=mysqli_query($con,$sql);
+//xu ly button Them
+if(isset($_POST['btnnhaphang'])){
+    $sp=$_POST['txtSophieu'];
+    $nn=$_POST['dtNgaynhap'];
+    $nv=$_POST['txtNhanvien'];
+    $sqltk="SELECT * FROM phieuxuat WHERE Sophieu like '%$sp%' and Ngaynhap like '%$nn%' and Nhanvien like '%$nv%'";
+    $data=mysqli_query($con,$sqltk);
+}
+$sp=''; $nn=''; $nv='';
+if(isset($_POST['btnNhaphang']))
 {
-   
+    $id=$_POST['id'];
     $sp=$_POST['txtSophieu'];
     $nn=$_POST['dtNgaynhap'];
     $nv=$_POST['txtNhanvien'];
     //kiem tra ma loai rong
-    if($sp==''|| $nn==''||$nv=='')
-        echo "<script>alert('Phải nhập số phiếu')</script>";  
+    if($sp==''|| $nn==''|| $nv=='')
+        echo "<script>alert('Phải nhập đầy đủ dữ liệu')</script>";  
     
     else{
-        //kiemtra trung khoa chinh
-        $sql1="SELECT * FROM phieunhap WHERE Sophieu='$sp'";
+        //kiemtra trung khoa chinh(maloai)
+        $sql1="SELECT * FROM phieuxuat WHERE id='$id'";
         $dt=mysqli_query($con, $sql1);
         if(mysqli_num_rows($dt)>0)
-            echo "<script>alert('Trùng số phiếu')</script>";
+            echo "<script>alert('Trùng Id')</script>";
         
         else{
-            // tao cau lenh truy van chen du lieu vao bang 
-            $sql="INSERT INTO phieunhap VALUE('$sp','$nn','$nv')";
+            // tao cau lenh truy van chen du lieu vao bang loaisach
+            $sql="INSERT INTO phieuxuat VALUE('$id', '$sp','$nn','$nv')";
             $kq=mysqli_query($con,$sql);
-            if($kq) echo "<script>alert('Nhập phiếu thành công!')</script>";
-            else echo "<script>alert('Nhập phiếu thất bại!')</script>";
+            if($kq) {
+                echo "<script>alert('Taọ phiếu thành công!')</script>";
+                header("location: phieuxuat.php");
+                    exit;
             }
+
+            else echo "<script>alert('Tạo phiếu thất bại!')</script>";
+            }
+            
         }
     }
-    //Ngắt kết nối
-    mysqli_close($con);
+   
+   //dong ket noi
+   mysqli_close($con);
 ?>
- 
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phiếu nhập | Quản lý kho hàng</title>
+    <title>Phiếu xuất | Quản lý kho hàng</title>
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/base.css">
     <link rel="stylesheet" href="./assets/css/stackpath.bootstrapcdn.com_bootstrap_4.1.1_css_bootstrap.min.css">
@@ -229,7 +233,7 @@ if(isset($_POST['btnPhieunhap']))
                             </div>
                         </a>
                     </div>
-                    
+
                     <div class="right_menu-item menu-item">
                         <a href="./Dulieukhohang.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -266,61 +270,60 @@ if(isset($_POST['btnPhieunhap']))
             <div class="content">
                 <form method="post" action="">
                     <table>
-                        <tr style="text-align:center">
-                            <td class="ttitle">Phiếu nhập</td>
+                        <tr>
+                            <td>
+                                <h5 class="ttitle"> THÊM PHIẾU xuất </h5>
+                            </td>
                         </tr>
                     </table>
                     <table>
                         <tr>
-                            <td class="col1">Số phiếu</td>
-                            <td class="col2">   
-                                <input class="form-control" type="number" name="txtSophieu">
+                            <td class="col1">Id</td>
+                            <td class="col2">
+                                <input type="text" name="id">
                             </td>
                         </tr>
                         <tr>
-                            <td class="col1">Ngày nhập</td>
-                            <td class="col2">   
-                                <input class="form-control" type="date" name="dtNgaynhap">
+                            <td class="col1">Số phiếu</td>
+                            <td class="col2">
+                                <input type="number" name="txtSophieu">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col1">Ngày xuất</td>
+                            <td class="col2">
+                                <input type="date" name="dtNgaynhap" >
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col1">Nhân viên</td>
+                            <td class="col2">
+                                <!-- <input type="text" name="txtNhanvien" > -->
+                                <select name="txtNhanvien">
+                                    <?php
+                                        $conn = mysqli_connect("localhost", "root", "", "baitaplon");
+
+                                        // Truy vấn cơ sở dữ liệu để lấy các giá trị từ thuộc tính "makh" trong bảng "sanpham"
+                                        $sql = "SELECT Tennv FROM qlnhanvien";
+                                        $result = mysqli_query($conn, $sql);
+
+                                        // Kiểm tra và hiển thị các giá trị trong combobox
+                                        if (mysqli_num_rows($result) > 0) {
+                                            while ($row = mysqli_fetch_assoc($result)) {
+                                                echo "<option value='" . $row['Tennv'] . "'>" . $row['Tennv'] . "</option>";
+                                            }
+                                        }
+                                    ?>
+                                </select>
                             </td>
                         </tr>
                         <tr>
                             <td class="col1"></td>
-                            <td class="col2">   
-                                <input class="btn btn-dark" type="submit" name="btntimkiem" value='Tìm kiếm'>&nbsp;&nbsp;
-                                <a class="btn btn-dark" href="./capnhatphieunhap.php" style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4px; left: 432px;">Thêm mới</a>
+                            <td class="col2">
+                                <input class="btn btn-dark" type="submit"name="btnNhaphang" value="Nhập hàng" >
+                                &nbsp; &nbsp;
                             </td>
                         </tr>
-                    </table>
-                    <table border="1" cellspacing="0" class="table table-bordered table-striped">
-                        <tr class="bheader">
-                            <th>STT</th>
-                            <th>Số phiếu</th>
-                            <th>Ngày nhập</th>
-                            <th>Nhân viên</th>
-                            <th>Tác vụ</th>
-                        </tr>
-                        <?php
-                            //Xử lí kết quả truy vấn(hiển thị mảng $data lên bảng)
-                            if(isset($data)&&$data!=null)
-                            {
-                                $i=0;
-                                while($row=mysqli_fetch_array($data)){
-                            ?>
-                                <tr class="bbody">
-                                    <td><?php echo++ $i ?></td>
-                                    <td><?php echo $row['Sophieu'] ?></td>
-                                    <td><?php echo $row['Ngaynhap'] ?></td>
-                                    <td><?php echo $row['Nhanvien'] ?></td>
-                                    <td>
-                                        <a style="color: #000;" href="phieunhap_sua.php?id=<?php echo $row['id']?>">Sửa</a> &nbsp;&nbsp;
-                                        <a style="color: #000;" href="xoa_phieunhap.php?id=<?php echo $row['id']?>">Xoá</a>
-                                    </td>
-                                </tr>
-                            <?php        
-                                }
-                            }
-                            //Kết thúc bước 3
-                        ?>
                     </table>
                 </form>
             </div>

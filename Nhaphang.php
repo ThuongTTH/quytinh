@@ -3,55 +3,56 @@
     $con=mysqli_connect('localhost','root','','baitaplon')
     or die('Lỗi kết nối');
     //Tạo và thực hiện truy vấn
-    $sql="SELECT*FROM phieunhap";
+    $sql="SELECT*FROM nhaphang";
     $data=mysqli_query($con,$sql);
-    //Xử lí button tìm kiếm dây là note moi tạo
+    //Xử lí button tìm kiếm
     if(isset($_POST['btntimkiem']))
     {
-        $nn=$_POST['dtNgaynhap'];
-        $sp=$_POST['txtSophieu'];
-        $sqltk="SELECT * FROM phieunhap WHERE Sophieu like'%$sp%' and Ngaynhap like '%$nn%'";
+        $dh=$_POST['txtMadh'];
+        $nd=$_POST['txtNoidung'];
+        $sqltk="SELECT * FROM nhaphang WHERE Madh like'%$dh%' and Noidung1 like '%$nd%'";
         $data=mysqli_query($con,$sqltk);
     }
     
-    $sp=''; $nn=''; $nv='';
-if(isset($_POST['btnPhieunhap']))
-{
-   
-    $sp=$_POST['txtSophieu'];
-    $nn=$_POST['dtNgaynhap'];
-    $nv=$_POST['txtNhanvien'];
-    //kiem tra ma loai rong
-    if($sp==''|| $nn==''||$nv=='')
-        echo "<script>alert('Phải nhập số phiếu')</script>";  
+    $dh=''; $nd=''; $gc=''; $nt='';
+    if(isset($_POST['btnNhaphang']))
+    {
     
-    else{
-        //kiemtra trung khoa chinh
-        $sql1="SELECT * FROM phieunhap WHERE Sophieu='$sp'";
-        $dt=mysqli_query($con, $sql1);
-        if(mysqli_num_rows($dt)>0)
-            echo "<script>alert('Trùng số phiếu')</script>";
+        $dh=$_POST['txtMadh'];
+        $nd=$_POST['txtNoidung'];
+        $gc=$_POST['txtGhichu'];
+        $nt=$_POST['dtNgaytao'];
+        //kiem tra ma loai rong
+        if($dh==''|| $nd==''|| $gc==''||$nt=='')
+            echo "<script>alert('Phải nhập đủ dữ liệu')</script>";  
         
         else{
-            // tao cau lenh truy van chen du lieu vao bang 
-            $sql="INSERT INTO phieunhap VALUE('$sp','$nn','$nv')";
+        //kiemtra trung khoa chinh(maloai)
+        $sql1="SELECT * FROM nhaphang WHERE Madh='$dh'";
+        $dt=mysqli_query($con, $sql1);
+        if(mysqli_num_rows($dt)>0)
+            echo "<script>alert('Trung ma loai')</script>";
+        
+        else{
+            // tao cau lenh truy van chen du lieu vao bang loaisach
+            $sql="INSERT INTO nhaphang VALUE('$dh','$nd','$gc','$nt')";
             $kq=mysqli_query($con,$sql);
-            if($kq) echo "<script>alert('Nhập phiếu thành công!')</script>";
-            else echo "<script>alert('Nhập phiếu thất bại!')</script>";
+            if($kq) echo "<script>alert('Tao don hang moi thanh cong!')</script>";
+            else echo "<script>alert('Tao don hang moi that bai!')</script>";
             }
         }
     }
+   
     //Ngắt kết nối
     mysqli_close($con);
 ?>
- 
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phiếu nhập | Quản lý kho hàng</title>
+    <title>Nhập hàng | Quản lý kho hàng</title>
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/base.css">
     <link rel="stylesheet" href="./assets/css/stackpath.bootstrapcdn.com_bootstrap_4.1.1_css_bootstrap.min.css">
@@ -194,9 +195,9 @@ if(isset($_POST['btnPhieunhap']))
 
                     <div class="right_menu-item--label">Dữ liệu nhập xuất</div>
 
-                    <div class="right_menu-item menu-item active">
+                    <div class="right_menu-item menu-item">
                         <a href="./phieunhap.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left small-active">
+                            <div class="right_menu-item--left">
                                 <i class="fa-solid fa-download"></i>
                                 Phiếu nhập
                             </div>
@@ -229,7 +230,7 @@ if(isset($_POST['btnPhieunhap']))
                             </div>
                         </a>
                     </div>
-                    
+
                     <div class="right_menu-item menu-item">
                         <a href="./Dulieukhohang.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -240,7 +241,7 @@ if(isset($_POST['btnPhieunhap']))
                     </div>
 
                     <div class="right_menu-item--label">Báo cáo thống kê</div>
-
+                    
                     <div class="right_menu-item menu-item">
                         <a href="./TKdoanhthu.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -265,63 +266,68 @@ if(isset($_POST['btnPhieunhap']))
         <div class="grid__column-10_5">
             <div class="content">
                 <form method="post" action="">
-                    <table>
-                        <tr style="text-align:center">
-                            <td class="ttitle">Phiếu nhập</td>
-                        </tr>
-                    </table>
-                    <table>
-                        <tr>
-                            <td class="col1">Số phiếu</td>
-                            <td class="col2">   
-                                <input class="form-control" type="number" name="txtSophieu">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col1">Ngày nhập</td>
-                            <td class="col2">   
-                                <input class="form-control" type="date" name="dtNgaynhap">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col1"></td>
-                            <td class="col2">   
-                                <input class="btn btn-dark" type="submit" name="btntimkiem" value='Tìm kiếm'>&nbsp;&nbsp;
-                                <a class="btn btn-dark" href="./capnhatphieunhap.php" style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4px; left: 432px;">Thêm mới</a>
-                            </td>
-                        </tr>
-                    </table>
-                    <table border="1" cellspacing="0" class="table table-bordered table-striped">
-                        <tr class="bheader">
-                            <th>STT</th>
-                            <th>Số phiếu</th>
-                            <th>Ngày nhập</th>
-                            <th>Nhân viên</th>
-                            <th>Tác vụ</th>
-                        </tr>
-                        <?php
-                            //Xử lí kết quả truy vấn(hiển thị mảng $data lên bảng)
-                            if(isset($data)&&$data!=null)
-                            {
-                                $i=0;
-                                while($row=mysqli_fetch_array($data)){
-                            ?>
-                                <tr class="bbody">
-                                    <td><?php echo++ $i ?></td>
-                                    <td><?php echo $row['Sophieu'] ?></td>
-                                    <td><?php echo $row['Ngaynhap'] ?></td>
-                                    <td><?php echo $row['Nhanvien'] ?></td>
-                                    <td>
-                                        <a style="color: #000;" href="phieunhap_sua.php?id=<?php echo $row['id']?>">Sửa</a> &nbsp;&nbsp;
-                                        <a style="color: #000;" href="xoa_phieunhap.php?id=<?php echo $row['id']?>">Xoá</a>
-                                    </td>
-                                </tr>
-                            <?php        
-                                }
-                            }
-                            //Kết thúc bước 3
+                <table>
+                    <tr>
+                        <td class="ttitle">DANH SÁCH THỐNG KÊ HÀNG NHẬP</td>
+                    </tr>
+                    <tr>
+                        <table>
+                            <tr>
+                                <td class="col1">Mã đơn hàng </td>
+                                <td class="col2">
+                                    <input class="form-control" type="text" name="txtMadh">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col1">Nội dung</td>
+                                <td class="col2">   
+                                    <input class="form-control" type="text" name="txtNoidung">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col1"></td>
+                                <td class="col2">   
+                                    <input class="btn btn-dark" type="submit" name="btntimkiem" value='Tìm kiếm'>&nbsp;&nbsp;
+                                    <a class="btn btn-dark" href="./capnhatnhaphang.php"style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4px; left: 424px;">Thêm mới</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </tr>
+                </table>
+                <table border="1" cellspacing="0" class="table table-bordered table-striped">
+                    <tr class="bheader">
+                        <th>STT</th>
+                        <th>Mã đơn hàng</th>
+                        <th>Nội dung</th>
+                        <th>Ghi chú</th>
+                        <th>Ngày tạo</th>
+                        <th>Tác vụ</th>
+                    </tr>
+                    <?php
+                        //Xử lí kết quả truy vấn(hiển thị mảng $data lên bảng)
+                        if(isset($data)&&$data!=null)
+                        {
+                            $i=0;
+                            while($row=mysqli_fetch_array($data)){
                         ?>
-                    </table>
+                            <tr class="bbody">
+                                <td><?php echo++ $i ?></td>
+                                <td><?php echo $row['Madh'] ?></td>
+                                <td><?php echo $row['Noidung1'] ?></td>
+                                <td><?php echo $row['Ghichu1'] ?></td>
+                                <td><?php echo $row['Ngaytao1'] ?></td>
+                                <td>
+                                    <a href="./nhaphang_sua.php?Madh=<?php echo $row['Madh']?>" style="color: #000">Sửa</a> &nbsp;&nbsp;
+                                    <a href="./nhaphang_xoa.php?Madh=<?php echo $row['Madh']?>" style="color: #000">Xoá</a>
+                                </td>
+                            </tr>
+                        <?php        
+                            }
+                        }
+                        //Kết thúc bước 3
+                    ?>
+                </table>
+                
                 </form>
             </div>
         </div>

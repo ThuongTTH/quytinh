@@ -1,57 +1,29 @@
 <?php
-    //Kết nối đến DB
-    $con=mysqli_connect('localhost','root','','baitaplon')
-    or die('Lỗi kết nối');
-    //Tạo và thực hiện truy vấn
-    $sql="SELECT*FROM phieunhap";
-    $data=mysqli_query($con,$sql);
-    //Xử lí button tìm kiếm dây là note moi tạo
-    if(isset($_POST['btntimkiem']))
-    {
-        $nn=$_POST['dtNgaynhap'];
-        $sp=$_POST['txtSophieu'];
-        $sqltk="SELECT * FROM phieunhap WHERE Sophieu like'%$sp%' and Ngaynhap like '%$nn%'";
-        $data=mysqli_query($con,$sqltk);
-    }
-    
-    $sp=''; $nn=''; $nv='';
-if(isset($_POST['btnPhieunhap']))
+//ket noi den DB
+$con=mysqli_connect('localhost','root','','baitaplon')
+or die('Lỗi kết nối');
+//Tao va thuc hien truy van
+$sql="SELECT*FROM qlnhacc";
+$data=mysqli_query($con,$sql);
+//Xử lí button tìm kiếm
+if(isset($_POST['btntimkiem']))
 {
-   
-    $sp=$_POST['txtSophieu'];
-    $nn=$_POST['dtNgaynhap'];
-    $nv=$_POST['txtNhanvien'];
-    //kiem tra ma loai rong
-    if($sp==''|| $nn==''||$nv=='')
-        echo "<script>alert('Phải nhập số phiếu')</script>";  
-    
-    else{
-        //kiemtra trung khoa chinh
-        $sql1="SELECT * FROM phieunhap WHERE Sophieu='$sp'";
-        $dt=mysqli_query($con, $sql1);
-        if(mysqli_num_rows($dt)>0)
-            echo "<script>alert('Trùng số phiếu')</script>";
-        
-        else{
-            // tao cau lenh truy van chen du lieu vao bang 
-            $sql="INSERT INTO phieunhap VALUE('$sp','$nn','$nv')";
-            $kq=mysqli_query($con,$sql);
-            if($kq) echo "<script>alert('Nhập phiếu thành công!')</script>";
-            else echo "<script>alert('Nhập phiếu thất bại!')</script>";
-            }
-        }
-    }
-    //Ngắt kết nối
-    mysqli_close($con);
+    $mancc=$_POST['txtmancc'];
+    $tenncc=$_POST['txttenncc'];
+    $sqltk="SELECT * FROM qlnhacc 
+    WHERE Mancc like'%$mancc%' and Tenncc like '%$tenncc%'";
+    $data=mysqli_query($con,$sqltk);
+}
+// ngat ket noi
+mysqli_close($con);
 ?>
- 
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phiếu nhập | Quản lý kho hàng</title>
+    <title>Nhà cung cấp | Quản lý kho hàng</title>
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/base.css">
     <link rel="stylesheet" href="./assets/css/stackpath.bootstrapcdn.com_bootstrap_4.1.1_css_bootstrap.min.css">
@@ -133,11 +105,11 @@ if(isset($_POST['btnPhieunhap']))
                     <div class="right_menu-item--label">Thiết lập dữ liệu</div>
 
                     <div class="right_menu-item menu-item">
-                        <div class="right_menu-item--left">
+                        <div class="right_menu-item--left small-active">
                             <i class="fa-solid fa-database"></i>
                             Quản lý danh mục
                         </div>
-                        <div class="submenu">
+                        <div class="submenu" style="display: block">
                             <a href="./Loaihang.php" class="right_menu-item--link">
                                 <div class="right_menu-item--container">
                                     <div class="right_menu-item--right">
@@ -155,8 +127,8 @@ if(isset($_POST['btnPhieunhap']))
                                 </div>
                             </a>
                             <a href="./Nhacungcap.php" class="right_menu-item--link">
-                                <div class="right_menu-item--container">
-                                    <div class="right_menu-item--right">
+                                <div class="right_menu-item--container active">
+                                    <div class="right_menu-item--right small-active">
                                         <i class="fa-solid fa-circle-notch"></i>
                                         Nhà cung cấp
                                     </div>
@@ -194,9 +166,9 @@ if(isset($_POST['btnPhieunhap']))
 
                     <div class="right_menu-item--label">Dữ liệu nhập xuất</div>
 
-                    <div class="right_menu-item menu-item active">
+                    <div class="right_menu-item menu-item">
                         <a href="./phieunhap.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left small-active">
+                            <div class="right_menu-item--left">
                                 <i class="fa-solid fa-download"></i>
                                 Phiếu nhập
                             </div>
@@ -229,7 +201,7 @@ if(isset($_POST['btnPhieunhap']))
                             </div>
                         </a>
                     </div>
-                    
+
                     <div class="right_menu-item menu-item">
                         <a href="./Dulieukhohang.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -240,7 +212,7 @@ if(isset($_POST['btnPhieunhap']))
                     </div>
 
                     <div class="right_menu-item--label">Báo cáo thống kê</div>
-
+                    
                     <div class="right_menu-item menu-item">
                         <a href="./TKdoanhthu.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -264,63 +236,70 @@ if(isset($_POST['btnPhieunhap']))
     
         <div class="grid__column-10_5">
             <div class="content">
-                <form method="post" action="">
+                <form method="post" action=""> 
                     <table>
-                        <tr style="text-align:center">
-                            <td class="ttitle">Phiếu nhập</td>
-                        </tr>
-                    </table>
-                    <table>
-                        <tr>
-                            <td class="col1">Số phiếu</td>
-                            <td class="col2">   
-                                <input class="form-control" type="number" name="txtSophieu">
+                        <table>
+                            <td> 
+                                <h4 class="ttitle">DANH SÁCH NHÀ CUNG CẤP</h4>
                             </td>
-                        </tr>
-                        <tr>
-                            <td class="col1">Ngày nhập</td>
-                            <td class="col2">   
-                                <input class="form-control" type="date" name="dtNgaynhap">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col1"></td>
-                            <td class="col2">   
-                                <input class="btn btn-dark" type="submit" name="btntimkiem" value='Tìm kiếm'>&nbsp;&nbsp;
-                                <a class="btn btn-dark" href="./capnhatphieunhap.php" style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4px; left: 432px;">Thêm mới</a>
-                            </td>
-                        </tr>
-                    </table>
-                    <table border="1" cellspacing="0" class="table table-bordered table-striped">
-                        <tr class="bheader">
-                            <th>STT</th>
-                            <th>Số phiếu</th>
-                            <th>Ngày nhập</th>
-                            <th>Nhân viên</th>
-                            <th>Tác vụ</th>
-                        </tr>
-                        <?php
-                            //Xử lí kết quả truy vấn(hiển thị mảng $data lên bảng)
-                            if(isset($data)&&$data!=null)
+                            <tr>
+                                <table>
+                                    <tr>
+                                        <td class="col1">Mã nhà cung cấp</td>
+                                        <td class="col2">   
+                                            <input class="form-control" type="text" name="txtmancc">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col1">Tên nhà cung cấp</td>
+                                        <td class="col2">   
+                                            <input class="form-control" type="text" name="txttenncc">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col1"></td>
+                                        <td class="col2">
+                                            <input class="btn btn-dark" type="submit" name="btntimkiem" value='Tìm kiếm'>
+                                            <a class="btn btn-dark" href="./Themmoinhacungcap.php" style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4.5px; left: 432px;">Thêm mới</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </tr>
+                        </table>
+                        <table border = "1" cellspacing = "0" class="table table-bordered table-striped">
+                            </tr>
+                                <tr class="bheader">
+                                <th>STT</th>
+                                <th>Mã nhà cung cấp</th>
+                                <th>Tên nhà cung cấp</th>
+                                <th>Email</th>
+                                <th>Số điện thoại</th>
+                                <th>Tác vụ</th>
+                            </tr>
+                            <?php
+                            // xu ly ket qua truy van (hien thi mang $data len bang)
+                            if(isset($data)&&($data)!=null)
                             {
                                 $i=0;
-                                while($row=mysqli_fetch_array($data)){
-                            ?>
-                                <tr class="bbody">
-                                    <td><?php echo++ $i ?></td>
-                                    <td><?php echo $row['Sophieu'] ?></td>
-                                    <td><?php echo $row['Ngaynhap'] ?></td>
-                                    <td><?php echo $row['Nhanvien'] ?></td>
-                                    <td>
-                                        <a style="color: #000;" href="phieunhap_sua.php?id=<?php echo $row['id']?>">Sửa</a> &nbsp;&nbsp;
-                                        <a style="color: #000;" href="xoa_phieunhap.php?id=<?php echo $row['id']?>">Xoá</a>
-                                    </td>
-                                </tr>
-                            <?php        
+                                while($row=mysqli_fetch_array($data))
+                                {
+                                    ?>
+                                        <tr class="bbody">
+                                            <td><?php echo++$i ?></td>
+                                            <td> <?php echo $row['Mancc'] ?></td>
+                                            <td>  <?php echo $row['Tenncc'] ?></td>
+                                            <td> <?php echo $row['Emailncc'] ?></td>
+                                            <td> <?php echo $row['Sdtncc'] ?></td>
+                                            <td >
+                                                <a href="./Dsncc_sua.php?Mancc=<?php echo $row['Mancc'] ?>" style="color: #000;">Sửa</a>  &nbsp;&nbsp;
+                                                <a href="./Dsncc_xoa.php?Mancc=<?php echo $row['Mancc'] ?>" style="color: #000;">Xoá</a>
+                                            </td>
+                                        </tr>
+                                    <?php
                                 }
                             }
-                            //Kết thúc bước 3
-                        ?>
+                            ?>
+                        </table>
                     </table>
                 </form>
             </div>

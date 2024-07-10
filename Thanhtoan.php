@@ -1,57 +1,130 @@
 <?php
-    //Kết nối đến DB
-    $con=mysqli_connect('localhost','root','','baitaplon')
+    include_once'./Classes/PHPExcel.php';
+    include_once'./Classes/PHPExcel/IOFactory.php';
+    // B1: Kết nối đến DB
+    $conn = mysqli_connect('localhost','root','','baitaplon')
     or die('Lỗi kết nối');
-    //Tạo và thực hiện truy vấn
-    $sql="SELECT*FROM phieunhap";
-    $data=mysqli_query($con,$sql);
-    //Xử lí button tìm kiếm dây là note moi tạo
-    if(isset($_POST['btntimkiem']))
-    {
-        $nn=$_POST['dtNgaynhap'];
-        $sp=$_POST['txtSophieu'];
-        $sqltk="SELECT * FROM phieunhap WHERE Sophieu like'%$sp%' and Ngaynhap like '%$nn%'";
-        $data=mysqli_query($con,$sqltk);
-    }
-    
-    $sp=''; $nn=''; $nv='';
-if(isset($_POST['btnPhieunhap']))
-{
-   
-    $sp=$_POST['txtSophieu'];
-    $nn=$_POST['dtNgaynhap'];
-    $nv=$_POST['txtNhanvien'];
-    //kiem tra ma loai rong
-    if($sp==''|| $nn==''||$nv=='')
-        echo "<script>alert('Phải nhập số phiếu')</script>";  
-    
-    else{
-        //kiemtra trung khoa chinh
-        $sql1="SELECT * FROM phieunhap WHERE Sophieu='$sp'";
-        $dt=mysqli_query($con, $sql1);
-        if(mysqli_num_rows($dt)>0)
-            echo "<script>alert('Trùng số phiếu')</script>";
-        
-        else{
-            // tao cau lenh truy van chen du lieu vao bang 
-            $sql="INSERT INTO phieunhap VALUE('$sp','$nn','$nv')";
-            $kq=mysqli_query($con,$sql);
-            if($kq) echo "<script>alert('Nhập phiếu thành công!')</script>";
-            else echo "<script>alert('Nhập phiếu thất bại!')</script>";
-            }
-        }
-    }
-    //Ngắt kết nối
-    mysqli_close($con);
-?>
- 
 
+    // B2: Tạo và thực hiện truy vấn
+    $sql = "SELECT * FROM ql_thongke_xuat";
+    $data = mysqli_query($conn,$sql);
+
+    //Xử lý button tìm kiếm
+    $tenkh = '';
+    $tensp = '';
+    if(isset($_POST['btnTim'])){
+        $tenkh = $_POST['txtTenkh'];
+        $tensp = $_POST['txtTensp'];
+        $sqltk = "SELECT * from ql_thongke_xuat where Tenkh like '%$tenkh%' and Tensp like '%$tensp%'";
+        $data = mysqli_query($conn, $sqltk);
+    }
+
+    if(isset($_POST['btnXuat'])){
+        //code xuất excel
+    $objExcel = new PHPExcel();
+    $objExcel->setActiveSheetIndex(0);
+    $sheet=$objExcel->getActiveSheet()->setTitle('DSLS');
+    $rowCount=2;
+    //Tạo tiêu đề cho cột trong excel
+    $sheet->setCellValue('C1', 'HÓA ĐƠN');
+    $sheet->setCellValue('A'.$rowCount,'Mã khách hàng');
+    $sheet->setCellValue('B'.$rowCount,'Tên khách hàng');
+    $sheet->setCellValue('C'.$rowCount,'Địa chỉ khách hàng');
+    $sheet->setCellValue('D'.$rowCount,'Số điện thoại khách hàng');
+    $sheet->setCellValue('E'.$rowCount,'Tên sản phẩm');
+    $sheet->setCellValue('F'.$rowCount,'Số lượng');
+    $sheet->setCellValue('G'.$rowCount,'Đơn giá');
+    $sheet->setCellValue('H'.$rowCount,'Tổng giá');
+   
+    //định dạng cột tiêu đề
+    $sheet->getColumnDimension('A')->setAutoSize(true);
+    $sheet->getColumnDimension('B')->setAutoSize(true);
+    $sheet->getColumnDimension('C')->setAutoSize(true);
+    $sheet->getColumnDimension('D')->setAutoSize(true);
+    $sheet->getColumnDimension('E')->setAutoSize(true);
+    $sheet->getColumnDimension('F')->setAutoSize(true);
+    $sheet->getColumnDimension('G')->setAutoSize(true);
+    $sheet->getColumnDimension('H')->setAutoSize(true);
+    //gán màu nền
+    $sheet->getStyle('A'.$rowCount.':H'.$rowCount)->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('00FF00');
+    //căn giữa
+    $sheet->getStyle('A'.$rowCount.':H'.$rowCount)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+    //Điền dữ liệu vào các dòng. Dữ liệu lấy từ DB
+    // $makh = $_POST['txtMakh'];
+    $tenkh = $_POST['txtTenkh'];
+    // $dc = $_POST['txtDiachi'] ;
+    // $sdtkh = $_POST['txtSdTkh'];
+    $tensp = $_POST['txtTensp'];
+    // $sl = $_POST['txtSoluong'];
+    // $dg = $_POST['txtDongia'];
+    // $tg = $_POST['txtTonggia'];
+    $sqltk = "SELECT * from ql_thongke_xuat where Tenkh like '%$tenkh%' and Tensp like '%$tensp%'";
+    $data = mysqli_query($conn, $sqltk);
+    while($row=mysqli_fetch_array($data)){
+        $rowCount++;
+        $sheet->setCellValue('A'.$rowCount,$row['Makh']);
+        $sheet->setCellValue('B'.$rowCount,$row['Tenkh']);
+        $sheet->setCellValue('C'.$rowCount,$row['Diachikh']);
+        $sheet->setCellValue('D'.$rowCount,$row['Sdtkh']);
+        $sheet->setCellValue('E'.$rowCount,$row['Tensp']);
+        $sheet->setCellValue('F'.$rowCount,$row['Soluong']);
+        $sheet->setCellValue('G'.$rowCount,$row['Dongia']);
+        $sheet->setCellValue('H'.$rowCount,$row['Tonggia']);
+    }
+    //Kẻ bảng 
+    $styleAray=array(
+        'borders'=>array(
+            'allborders'=>array(
+                'style'=>PHPExcel_Style_Border::BORDER_THIN
+            )
+        )
+        );
+    $sheet->getStyle('A1:'.'H'.($rowCount))->applyFromArray($styleAray);
+    $objWriter=new PHPExcel_Writer_Excel2007($objExcel);
+    $fileName='ExportExcel.xlsx';
+    $objWriter->save($fileName);
+    header('Content-Disposition: attachment; filename="'.$fileName.'"');
+    header('Content-Type: application/vnd.openxlmformatsofficedocument.speadsheetml.sheet');
+    header('Content-Length: '.filesize($fileName));
+    header('Content-Transfer-Encoding:binary');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: no-cache');
+    readfile($fileName);
+    }
+
+    if(isset($_POST['btnUpload']))
+{
+    $file=$_FILES['txtFile']['tmp_name'];
+    $objReader=PHPExcel_IOFactory::createReaderForFile($file);
+    $objExcel=$objReader->load($file);
+    //Lấy sheet hiện tại
+    $sheet=$objExcel->getSheet(0);
+    $sheetData=$sheet->toArray(null,true,true,true,true,true,true,true);
+    for($i=2;$i<=count($sheetData);$i++){
+        $makh=$sheetData[$i]["A"];
+        $tenkh=$sheetData[$i]["B"];
+        $dc=$sheetData[$i]["C"];
+        $sdt=$sheetData[$i]["D"];
+        $tensp=$sheetData[$i]["E"];
+        $sl=$sheetData[$i]["F"];
+        $dg=$sheetData[$i]["G"];
+        $tg=$sheetData[$i]["H"];
+
+        $sql111="INSERT INTO ql_thongke_xuat VALUES('$makh','$tenkh','$dc','$sdt','$tensp','$sl','$dg','$tg')";
+        $conn->query($sql111);
+    }
+    echo "<script>alert('Thêm mới thành công!')</script>";
+}
+  
+    //Ngắt kết nối
+    mysqli_close($conn);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phiếu nhập | Quản lý kho hàng</title>
+    <title>Thống kê xuất hàng | Quản lý kho hàng</title>
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/base.css">
     <link rel="stylesheet" href="./assets/css/stackpath.bootstrapcdn.com_bootstrap_4.1.1_css_bootstrap.min.css">
@@ -116,7 +189,7 @@ if(isset($_POST['btnPhieunhap']))
     </nav>
 
     <div class="grid">
-        <div class="grid__column-1_5">
+    <div class="grid__column-1_5">
             <div class="right_menu">
                 <div class="right_menu-list">
                     <h3 class="right_menu-text">Menu</h3>
@@ -135,7 +208,7 @@ if(isset($_POST['btnPhieunhap']))
                     <div class="right_menu-item menu-item">
                         <div class="right_menu-item--left">
                             <i class="fa-solid fa-database"></i>
-                            Quản lý danh mục
+                            Quản lý danh mục 
                         </div>
                         <div class="submenu">
                             <a href="./Loaihang.php" class="right_menu-item--link">
@@ -194,9 +267,9 @@ if(isset($_POST['btnPhieunhap']))
 
                     <div class="right_menu-item--label">Dữ liệu nhập xuất</div>
 
-                    <div class="right_menu-item menu-item active">
+                    <div class="right_menu-item menu-item">
                         <a href="./phieunhap.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left small-active">
+                            <div class="right_menu-item--left">
                                 <i class="fa-solid fa-download"></i>
                                 Phiếu nhập
                             </div>
@@ -229,7 +302,7 @@ if(isset($_POST['btnPhieunhap']))
                             </div>
                         </a>
                     </div>
-                    
+
                     <div class="right_menu-item menu-item">
                         <a href="./Dulieukhohang.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -240,7 +313,7 @@ if(isset($_POST['btnPhieunhap']))
                     </div>
 
                     <div class="right_menu-item--label">Báo cáo thống kê</div>
-
+                    
                     <div class="right_menu-item menu-item">
                         <a href="./TKdoanhthu.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -249,10 +322,10 @@ if(isset($_POST['btnPhieunhap']))
                             </div>
                         </a>
                     </div>
-                    
-                    <div class="right_menu-item menu-item">
+
+                    <div class="right_menu-item menu-item active">
                         <a href="./Thanhtoan.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left">
+                            <div class="right_menu-item--left small-active">
                                 <i class="fa-solid fa-rectangle-list"></i>
                                 Hóa đơn
                             </div>
@@ -264,62 +337,74 @@ if(isset($_POST['btnPhieunhap']))
     
         <div class="grid__column-10_5">
             <div class="content">
-                <form method="post" action="">
-                    <table>
-                        <tr style="text-align:center">
-                            <td class="ttitle">Phiếu nhập</td>
-                        </tr>
-                    </table>
+                <form action=""enctype="multipart/form-data" method="post">
                     <table>
                         <tr>
-                            <td class="col1">Số phiếu</td>
-                            <td class="col2">   
-                                <input class="form-control" type="number" name="txtSophieu">
+                            <td colspan="2">
+                                <h4 class="ttitle">Danh sách hóa đơn</h4>
                             </td>
                         </tr>
                         <tr>
-                            <td class="col1">Ngày nhập</td>
-                            <td class="col2">   
-                                <input class="form-control" type="date" name="dtNgaynhap">
+                            <td class="col1">Tên khách hàng</td>
+                            <td class="col2">
+                                <input class="form-control" type="text" name="txtTenkh">
                             </td>
                         </tr>
                         <tr>
-                            <td class="col1"></td>
-                            <td class="col2">   
-                                <input class="btn btn-dark" type="submit" name="btntimkiem" value='Tìm kiếm'>&nbsp;&nbsp;
-                                <a class="btn btn-dark" href="./capnhatphieunhap.php" style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4px; left: 432px;">Thêm mới</a>
+                            <td class="col1">Tên sản phẩm</td>
+                            <td class="col2">
+                                <input class="form-control" type="text" name="txtTensp">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="col1">
+                            <input type="file" class="form-control-file" id="myFile2" name="txtFile">
+                            </td>
+                            <td class="col2">
+                                <input class="btn btn-dark" type="submit" name="btnTim" value="Tìm kiếm">&nbsp;&nbsp;
+                                <a class="btn btn-dark" href="./capnhatthanhtoan.php" style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4px; left: 432px;">Thêm mới</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="submit" class="btn btn-dark" name="btnXuat" value="Xuất Excel" style="margin-left: 13px">
+                                <input class="btn btn-dark" type="submit" name="btnUpload" value="Upload file">
+
                             </td>
                         </tr>
                     </table>
                     <table border="1" cellspacing="0" class="table table-bordered table-striped">
                         <tr class="bheader">
                             <th>STT</th>
-                            <th>Số phiếu</th>
-                            <th>Ngày nhập</th>
-                            <th>Nhân viên</th>
+                            <th>Tên khách hàng</th>
+                            <th>Địa chỉ khách hàng</th>
+                            <th>Số điện thoại khách hàng</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>Tổng giá</th>
                             <th>Tác vụ</th>
                         </tr>
                         <?php
-                            //Xử lí kết quả truy vấn(hiển thị mảng $data lên bảng)
-                            if(isset($data)&&$data!=null)
-                            {
-                                $i=0;
-                                while($row=mysqli_fetch_array($data)){
-                            ?>
-                                <tr class="bbody">
-                                    <td><?php echo++ $i ?></td>
-                                    <td><?php echo $row['Sophieu'] ?></td>
-                                    <td><?php echo $row['Ngaynhap'] ?></td>
-                                    <td><?php echo $row['Nhanvien'] ?></td>
-                                    <td>
-                                        <a style="color: #000;" href="phieunhap_sua.php?id=<?php echo $row['id']?>">Sửa</a> &nbsp;&nbsp;
-                                        <a style="color: #000;" href="xoa_phieunhap.php?id=<?php echo $row['id']?>">Xoá</a>
-                                    </td>
-                                </tr>
-                            <?php        
+                            //B3: Xử lí kết quả truy vấn (Hiển thị mảng data lên bảng)
+                            if(isset($data)&&$data!=null){
+                                $i = 0;
+                                while($row = mysqli_fetch_array($data)){
+                        ?>
+                            <tr class="bbody">
+                                <td><?php echo ++$i ?></td>
+                                <td><?php echo $row['Tenkh'] ?></td>
+                                <td><?php echo $row['Diachikh'] ?></td>
+                                <td><?php echo $row['Sdtkh'] ?></td>
+                                <td><?php echo $row['Tensp'] ?></td>
+                                <td><?php echo $row['Soluong'] ?></td>
+                                <td><?php echo $row['Dongia'] ?></td>
+                                <td><?php echo $row['Tonggia'] ?></td>
+                                <td>
+                                    <!-- <a href="" style="color:#000">Sửa</a>&nbsp;&nbsp; -->
+                                    <a href="./xoaThanhtoan.php?tenkh=<?php echo $row['Tenkh'] ?>" style="color:#000">Xóa</a>  
+                                </td>
+                            </tr>
+                        <?php
                                 }
                             }
-                            //Kết thúc bước 3
+                            //Kết thúc B3
                         ?>
                     </table>
                 </form>

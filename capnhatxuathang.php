@@ -1,57 +1,66 @@
 <?php
-    //Kết nối đến DB
-    $con=mysqli_connect('localhost','root','','baitaplon')
-    or die('Lỗi kết nối');
-    //Tạo và thực hiện truy vấn
-    $sql="SELECT*FROM phieunhap";
-    $data=mysqli_query($con,$sql);
-    //Xử lí button tìm kiếm dây là note moi tạo
-    if(isset($_POST['btntimkiem']))
-    {
-        $nn=$_POST['dtNgaynhap'];
-        $sp=$_POST['txtSophieu'];
-        $sqltk="SELECT * FROM phieunhap WHERE Sophieu like'%$sp%' and Ngaynhap like '%$nn%'";
-        $data=mysqli_query($con,$sqltk);
-    }
-    
-    $sp=''; $nn=''; $nv='';
-if(isset($_POST['btnPhieunhap']))
+$con=mysqli_connect('localhost','root','','baitaplon')
+or die('Loi ket noi');
+//tao va thuc hien truy van lay dl bang loai sach duwa vao combox
+$sql="SELECT * FROM nhaphang";
+$dt_ls=mysqli_query($con, $sql);
+//Tao va thuc hien truy van
+$sql="SELECT*FROM xuathang";
+$data=mysqli_query($con,$sql);
+//xu ly button Them
+if(isset($_POST['btnxuathang'])){
+    $dh=$_POST['txtMadh'];
+    $nd=$_POST['txtNoidung'];
+    $gc=$_POST['txtGhichu'];
+    $nt=$_POST['dtNgaytao'];
+    $sqltk="SELECT * FROM xuathang WHERE Madh like '%$dh%' and Noidung2 like '%$nd%' and Ghichu2 like '%$gc%' and Ngaytao2 like '%$nt%'";
+    $data=mysqli_query($con,$sqltk);
+}
+$dh=''; $nd=''; $gc=''; $nt='';
+if(isset($_POST['btnXuathang']))
 {
    
-    $sp=$_POST['txtSophieu'];
-    $nn=$_POST['dtNgaynhap'];
-    $nv=$_POST['txtNhanvien'];
+    $dh=$_POST['txtMadh'];
+    $nd=$_POST['txtNoidung'];
+    $gc=$_POST['txtGhichu'];
+    $nt=$_POST['dtNgaytao'];
     //kiem tra ma loai rong
-    if($sp==''|| $nn==''||$nv=='')
-        echo "<script>alert('Phải nhập số phiếu')</script>";  
+    if($dh==''||$nd==''|| $gc==''||$nt=='')
+        echo "<script>alert('Phải nhập đủ dữ liệu')</script>";  
     
     else{
-        //kiemtra trung khoa chinh
-        $sql1="SELECT * FROM phieunhap WHERE Sophieu='$sp'";
+        //kiemtra trung khoa chinh(maloai)
+        $sql1="SELECT * FROM nhaphang WHERE Madh='$dh'";
         $dt=mysqli_query($con, $sql1);
         if(mysqli_num_rows($dt)>0)
-            echo "<script>alert('Trùng số phiếu')</script>";
+            echo "<script>alert('Trùng mã đơn hàng')</script>";
         
         else{
-            // tao cau lenh truy van chen du lieu vao bang 
-            $sql="INSERT INTO phieunhap VALUE('$sp','$nn','$nv')";
+            // tao cau lenh truy van chen du lieu vao bang loaisach
+            $sql="INSERT INTO xuathang VALUE('$dh','$nd','$gc','$nt')";
             $kq=mysqli_query($con,$sql);
-            if($kq) echo "<script>alert('Nhập phiếu thành công!')</script>";
-            else echo "<script>alert('Nhập phiếu thất bại!')</script>";
+            if($kq) {
+                echo "<script>alert('Xuất hàng thành công!')</script>";
+                header("location: Xuathang.php");
+                    exit;
             }
+
+            else echo "<script>alert('Tạo đơn hàng mới thất bại!')</script>";
+            }
+            
         }
     }
-    //Ngắt kết nối
-    mysqli_close($con);
+   
+   //dong ket noi
+   mysqli_close($con);
 ?>
- 
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phiếu nhập | Quản lý kho hàng</title>
+    <title>Xuất hàng | Quản lý kho hàng</title>
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/base.css">
     <link rel="stylesheet" href="./assets/css/stackpath.bootstrapcdn.com_bootstrap_4.1.1_css_bootstrap.min.css">
@@ -194,42 +203,24 @@ if(isset($_POST['btnPhieunhap']))
 
                     <div class="right_menu-item--label">Dữ liệu nhập xuất</div>
 
-                    <div class="right_menu-item menu-item active">
-                        <a href="./phieunhap.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left small-active">
+                    <div class="right_menu-item menu-item">
+                        <a href="./Nhaphang.php" class="right_menu-item--link">
+                            <div class="right_menu-item--left">
                                 <i class="fa-solid fa-download"></i>
-                                Phiếu nhập
+                                Dữ liệu nhập hàng
                             </div>
                         </a>
                     </div>
 
                     <div class="right_menu-item menu-item">
-                        <a href="./chitietphieunhap.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left">
+                        <a href="./Xuathang.php" class="right_menu-item--link">
+                            <div class="right_menu-item--left small-active">
                                 <i class="fa-solid fa-file-export"></i>
-                                Chi tiết phiếu nhập
+                                Dữ liệu xuất hàng
                             </div>
                         </a>
                     </div>
 
-                    <div class="right_menu-item menu-item">
-                        <a href="./phieuxuat.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left">
-                                <i class="fa-solid fa-chart-pie"></i>
-                                Phiếu xuất
-                            </div>
-                        </a>
-                    </div>
-
-                    <div class="right_menu-item menu-item">
-                        <a href="./chitietphieuxuat.php" class="right_menu-item--link">
-                            <div class="right_menu-item--left">
-                                <i class="fa-solid fa-receipt"></i>
-                                Chi tiết phiếu xuất
-                            </div>
-                        </a>
-                    </div>
-                    
                     <div class="right_menu-item menu-item">
                         <a href="./Dulieukhohang.php" class="right_menu-item--link">
                             <div class="right_menu-item--left">
@@ -240,6 +231,24 @@ if(isset($_POST['btnPhieunhap']))
                     </div>
 
                     <div class="right_menu-item--label">Báo cáo thống kê</div>
+
+                    <div class="right_menu-item menu-item">
+                        <a href="./TKnhapxuat.php" class="right_menu-item--link">
+                            <div class="right_menu-item--left">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                Thống kê nhập
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="right_menu-item menu-item">
+                        <a href="./Thanhtoan.php" class="right_menu-item--link">
+                            <div class="right_menu-item--left">
+                                <i class="fa-solid fa-receipt"></i>
+                                Thống kê xuất
+                            </div>
+                        </a>
+                    </div>
 
                     <div class="right_menu-item menu-item">
                         <a href="./TKdoanhthu.php" class="right_menu-item--link">
@@ -266,61 +275,44 @@ if(isset($_POST['btnPhieunhap']))
             <div class="content">
                 <form method="post" action="">
                     <table>
-                        <tr style="text-align:center">
-                            <td class="ttitle">Phiếu nhập</td>
-                        </tr>
-                    </table>
-                    <table>
                         <tr>
-                            <td class="col1">Số phiếu</td>
-                            <td class="col2">   
-                                <input class="form-control" type="number" name="txtSophieu">
+                            <td>
+                                <h5 class="ttitle"> XUẤT HÀNG MỚI </h5>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="col1">Ngày nhập</td>
-                            <td class="col2">   
-                                <input class="form-control" type="date" name="dtNgaynhap">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="col1"></td>
-                            <td class="col2">   
-                                <input class="btn btn-dark" type="submit" name="btntimkiem" value='Tìm kiếm'>&nbsp;&nbsp;
-                                <a class="btn btn-dark" href="./capnhatphieunhap.php" style="color: #fff; text-decoration: none; padding: 4px 13px; position: relative; top: -4px; left: 432px;">Thêm mới</a>
-                            </td>
-                        </tr>
-                    </table>
-                    <table border="1" cellspacing="0" class="table table-bordered table-striped">
-                        <tr class="bheader">
-                            <th>STT</th>
-                            <th>Số phiếu</th>
-                            <th>Ngày nhập</th>
-                            <th>Nhân viên</th>
-                            <th>Tác vụ</th>
-                        </tr>
-                        <?php
-                            //Xử lí kết quả truy vấn(hiển thị mảng $data lên bảng)
-                            if(isset($data)&&$data!=null)
-                            {
-                                $i=0;
-                                while($row=mysqli_fetch_array($data)){
-                            ?>
-                                <tr class="bbody">
-                                    <td><?php echo++ $i ?></td>
-                                    <td><?php echo $row['Sophieu'] ?></td>
-                                    <td><?php echo $row['Ngaynhap'] ?></td>
-                                    <td><?php echo $row['Nhanvien'] ?></td>
-                                    <td>
-                                        <a style="color: #000;" href="phieunhap_sua.php?id=<?php echo $row['id']?>">Sửa</a> &nbsp;&nbsp;
-                                        <a style="color: #000;" href="xoa_phieunhap.php?id=<?php echo $row['id']?>">Xoá</a>
-                                    </td>
-                                </tr>
-                            <?php        
-                                }
-                            }
-                            //Kết thúc bước 3
-                        ?>
+                        <table>
+                            <tr>
+                                <td class="col1">Mã đơn hàng</td>
+                                <td class="col2">
+                                    <input type="text" name="txtMadh" >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col1">Nội dung</td>
+                                <td class="col2">
+                                    <input type="text" name="txtNoidung" >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col1">Ghi chú</td>
+                                <td class="col2">
+                                    <input type="text" name="txtGhichu" >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col1">Ngày tạo</td>
+                                <td class="col2">
+                                    <input type="date" name="dtNgaytao" >
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col1"></td>
+                                <td class="col2">
+                                    <input class="btn btn-dark" type="submit"name="btnXuathang" value="Xuất hàng" >
+                                    &nbsp; &nbsp;
+                                </td>
+                            </tr>
+                        </table>
                     </table>
                 </form>
             </div>
